@@ -7,3 +7,4 @@ streamlit run app.py
 ```
 
 Use the first tab for pasted text and the second tab for PDF/TXT uploads.
+    
