@@ -1,4 +1,10 @@
-streamlit
+﻿streamlit
 pypdf
 google-generativeai
 python-dotenv
+langchain
+langchain-google-genai
+langchain-community
+langchain-experimental
+tavily-python
+
