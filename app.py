@@ -11,7 +11,7 @@ from pypdf import PdfReader
 from io import BytesIO
 
 # --- 1. Configuration & State Definition ---
-st.set_page_config(page_title="AlignAgent AI", page_icon="ðŸ¤–", layout="wide")
+st.set_page_config(page_title="AlignAgent AI", page_icon="🤖", layout="wide")
 
 # Ensure keys are set in Streamlit secrets or environment
 os.environ["GOOGLE_API_KEY"] = st.secrets["GEMINI_API_KEY"]
@@ -44,7 +44,7 @@ def calculate_match_score(resume_points: int, total_points: int):
 
 def researcher_agent(state: AgentState) -> AgentState:
     """Task: Extracts data, researches the company, and identifies gaps."""
-    st.write("ðŸ” **Researcher Agent** is analyzing documents and searching the web...")
+    st.write("🔍 **Researcher Agent** is analyzing documents and searching the web...")
     
     # Extract Company Name from JD for Search
     company_search_query = f"Company culture and technology stack for the role described in: {state['jd_text'][:500]}"
@@ -58,10 +58,10 @@ def researcher_agent(state: AgentState) -> AgentState:
     JD: {state['jd_text']}
     WEB RESEARCH: {web_data}
     
-    Output a 'Research Summary' including:
-    1. Top 5 required skills.
-    2. Company culture alignment.
-    3. Missing critical keywords.
+    Output a detailed 'Research Summary' using bullet points. Include:
+    - Top 5 required skills missing or matching.
+    - Company culture alignment observations.
+    - Missing critical keywords.
     """
     res = llm.invoke(prompt)
     state["research_analysis"] = res.content
@@ -70,7 +70,7 @@ def researcher_agent(state: AgentState) -> AgentState:
 
 def advisor_agent(state: AgentState) -> AgentState:
     """Task: Calculates precise match and generates the Markdown report."""
-    st.write("ðŸ’¡ **Advisor Agent** is calculating scores and drafting suggestions...")
+    st.write("💡 **Advisor Agent** is calculating scores and drafting suggestions...")
     
     # Logic to determine points (Simplified for LLM reasoning)
     points_prompt = f"Based on this research: {state['research_analysis']}, count how many of the 10 core JD requirements the candidate meets. Return only the integer."
@@ -86,10 +86,10 @@ def advisor_agent(state: AgentState) -> AgentState:
     Research: {state['research_analysis']}
     
     Structure:
-    ## ðŸ“Š Match Analysis: {score}
+    ## 📊 Match Analysis: {score}
     ## ðŸ¢ Company Insights
-    ## ðŸ› ï¸ Recommended Changes
-    ## ðŸš€ Project Roadmap
+    ## 🛠️ Recommended Changes
+    ## 🚀 Project Roadmap
     """
     state["final_report"] = llm.invoke(report_prompt).content
     return state
@@ -97,7 +97,7 @@ def advisor_agent(state: AgentState) -> AgentState:
 # --- 4. Streamlit UI Logic ---
 
 def main():
-    st.title("ðŸ§­ AlignAgent: Multi-Agent Resume Optimizer")
+    st.title("🧭 AlignAgent: Multi-Agent Resume Optimizer")
     
     col1, col2 = st.columns(2)
     with col1:
