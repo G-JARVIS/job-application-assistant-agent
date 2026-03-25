@@ -4,6 +4,8 @@ import re
 from collections import Counter
 from io import BytesIO
 from pathlib import Path
+import os
+import google.generativeai as genai
 
 import streamlit as st
 from pypdf import PdfReader
@@ -17,6 +19,11 @@ st.set_page_config(
     page_icon="🧭",
     layout="wide",
 )
+
+# Configure Gemini
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
+
 
 STOPWORDS = {
     "the", "and", "for", "with", "that", "this", "from", "your", "you", "are", "was",
@@ -247,6 +254,35 @@ def build_suggestions(resume_text, jd_text, matched_skills, missing_skills, jd_k
 
     return suggestions
 
+def generate_llm_suggestions(missing_skills, job_role):
+    if not missing_skills:
+        return ""
+    
+    prompt = f"""
+    You are a professional resume advisor.
+
+    Job Role: {job_role}
+
+    Missing Skills:
+    {', '.join(missing_skills)}
+
+    Task:
+    1. Suggest how the candidate can improve their resume.
+    2. Recommend skills to learn.
+    3. Suggest certifications or projects.
+    4. Provide professional resume improvement suggestions.
+
+    Output format:
+    - Improvement Suggestions
+    - Skills to Learn
+    - Recommended Projects
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error contacting Gemini API: {str(e)}"
 
 def run_agent(resume_text: str, jd_text: str):
     resume_text = (resume_text or "").strip()
@@ -512,6 +548,26 @@ def show_result(result: dict):
     st.markdown("### Suggestions")
     for item in result["suggestions"]:
         st.write(f"• {item}")
+
+    # -----------------------------
+    # LLM Suggestions (Gemini)
+    # -----------------------------
+    st.markdown("### 🤖 AI-Powered Suggestions (LLM)")
+    
+    # Try to extract a simple job role from jd_text, or default to a generic one
+    job_role = result.get("jd_keywords", ["Target Role"])[0].capitalize() if result.get("jd_keywords") else "Target Job Role"
+
+    if result["missing_skills"]:
+        with st.spinner("Generating AI suggestions using Gemini..."):
+            llm_output = generate_llm_suggestions(
+                result["missing_skills"],
+                job_role
+            )
+        
+        st.success("AI Suggestions Generated")
+        st.write(llm_output)
+    else:
+        st.info("No major missing skills detected, so LLM suggestions not required.")
 
     with st.expander("Section audit"):
         st.json(result["section_flags"])
