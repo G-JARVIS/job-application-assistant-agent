@@ -17,7 +17,11 @@ st.set_page_config(page_title="AlignAgent AI", page_icon="ðŸ¤–", layout="wi
 os.environ["GOOGLE_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
 
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash", 
+    temperature=0,
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
 
 class AgentState(TypedDict):
     resume_text: str
