@@ -18,8 +18,7 @@ os.environ["GOOGLE_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
-    temperature=0,
+    model="gemini-2.5-flash-lite",
     api_key=st.secrets["GEMINI_API_KEY"]
 )
 
