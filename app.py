@@ -259,23 +259,31 @@ def generate_llm_suggestions(missing_skills, job_role):
         return ""
     
     prompt = f"""
-    You are a professional resume advisor.
+    You are an expert AI resume advisor.
 
     Job Role: {job_role}
 
-    Missing Skills:
+    Missing Skills identified:
     {', '.join(missing_skills)}
 
     Task:
-    1. Suggest how the candidate can improve their resume.
-    2. Recommend skills to learn.
-    3. Suggest certifications or projects.
-    4. Provide professional resume improvement suggestions.
+    Provide a highly structured, well-formatted Markdown report to help the candidate improve their resume for the specified job role by focusing on the missing skills.
 
-    Output format:
-    - Improvement Suggestions
-    - Skills to Learn
-    - Recommended Projects
+    Use emojis, clear headings (H2/H3), bullet points, and bold text for readability. Follow exactly this structure:
+
+    ## 🎯 Improvement Suggestions
+    (Provide general and specific ways to improve the resume.)
+
+    ## 📚 Skills to Learn
+    (Detail why and how to learn the missing skills. Break it down per skill with bullet points.)
+
+    ## 🚀 Recommended Projects
+    (Suggest 2-3 specific project ideas to build these skills. Briefly describe the concept, action, and outcome for each.)
+
+    ## 📝 Professional Resume Improvement Suggestions
+    (Provide tips on structuring the resume, formatting sections, and action verbs.)
+    
+    Make the tone professional, encouraging, and easy to read. Output strictly plain Markdown text without code blocks wrapping it.
     """
 
     try:
@@ -563,9 +571,9 @@ def show_result(result: dict):
                 result["missing_skills"],
                 job_role
             )
-        
+
         st.success("AI Suggestions Generated")
-        st.write(llm_output)
+        st.markdown(llm_output)
     else:
         st.info("No major missing skills detected, so LLM suggestions not required.")
 
