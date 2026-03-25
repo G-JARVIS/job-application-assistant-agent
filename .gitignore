@@ -1,0 +1,5 @@
+﻿.streamlit/secrets.toml
+__pycache__/
+old_app_merged.py
+.env
+
