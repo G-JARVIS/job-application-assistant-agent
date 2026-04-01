@@ -11,7 +11,7 @@ from pypdf import PdfReader
 from io import BytesIO
 
 # --- 1. Configuration & State Definition ---
-st.set_page_config(page_title="AlignAgent AI", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Job-Assistant-Agent AI", page_icon="🤖", layout="wide")
 
 # Ensure keys are set in Streamlit secrets or environment
 os.environ["GOOGLE_API_KEY"] = st.secrets["GEMINI_API_KEY"]
