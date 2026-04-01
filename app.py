@@ -18,7 +18,7 @@ os.environ["GOOGLE_API_KEY"] = st.secrets["GEMINI_API_KEY"]
 os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-lite",
+    model="gemini-2.5-flash",
     api_key=st.secrets["GEMINI_API_KEY"]
 )
 
@@ -32,7 +32,7 @@ class AgentState(TypedDict):
 
 # --- 2. Tool Definitions ---
 def search_company(query: str):
-    search = TavilySearchResults(max_results=2)
+    search = TavilySearchResults(max_results=5)
     return search.run(query)
 
 def calculate_match_score(resume_points: int, total_points: int):
@@ -51,19 +51,26 @@ def researcher_agent(state: AgentState) -> AgentState:
     web_data = search_company(company_search_query)
     
     prompt = f"""
-    Compare the Resume and Job Description below. 
-    Use the provided Web Research to contextualize your analysis.
+    You are an expert technical recruiter and resume analyst.
+    Please conduct a deep, comprehensive analysis comparing the provided Resume against the Job Description.
+    Think step-by-step and use the provided Web Research to contextualize your analysis with real-world company data.
     
     RESUME: {state['resume_text']}
     JD: {state['jd_text']}
     WEB RESEARCH: {web_data}
     
-    Output a detailed 'Research Summary' using bullet points. Include:
-    - Top 5 required skills missing or matching.
-    - Company culture alignment observations.
-    - Missing critical keywords.
+    Output a detailed 'Research Summary' using clear headings and bullet points. Include:
+    - **Skill Gap Analysis**: The top core skills matching, and crucial skills missing from the resume.
+    - **Company Culture Alignment**: How the candidate's experience aligns with the company's established values and tech stack found in the web research.
+    - **Crucial Missing Keywords**: Specific ATS-friendly keywords and phrases present in the JD but absent from the resume.
+    - **Experience Evaluation**: A brief critique of how the candidate's described impact and achievements match the seniority and expectations of the role.
     """
-    res = llm.invoke(prompt)
+    try:
+        res = llm.invoke(prompt)
+    except Exception as e:
+        st.error(f"Google Generative AI Error: {e}")
+        st.stop()
+        return state
     state["research_analysis"] = res.content
     state["company_info"] = web_data
     return state
@@ -81,15 +88,27 @@ def advisor_agent(state: AgentState) -> AgentState:
     state["math_result"] = score
     
     report_prompt = f"""
-    Create a professional Markdown report based on:
-    Match Score: {score}
-    Research: {state['research_analysis']}
+    You are an expert career counselor and resume optimizer.
+    Create a highly specific, actionable, and professional Markdown report based on the overall research.
     
-    Structure:
+    Match Score: {score}
+    Research Context: {state['research_analysis']}
+    
+    Think carefully to provide personalized, concrete advice to the candidate.
+    
+    Structure the report EXACTLY as follows:
+    
     ## 📊 Match Analysis: {score}
-    ## Company Insights
-    ## 🛠️ Recommended Changes
-    ## 🚀 Project Roadmap
+    *(Provide a detailed breakdown of why this score was assigned, highlighting major strengths and critical gaps based on the research context.)*
+    
+    ## 🏢 Company Insights
+    *(Synthesize the web research and JD into actionable intel about the company's culture and what they look for in successful candidates.)*
+    
+    ## 🛠️ Recommended Resume Changes
+    *(Provide 3 to 5 highly specific rewrite suggestions for the resume's bullet points. Provide concrete examples incorporating missing keywords and impact metrics.)*
+    
+    ## 🚀 Project Roadmap & Upskilling
+    *(Recommend 1-2 specific, short-term project ideas or resources the candidate can complete to quickly fill the crucial skill gaps identified in the analysis.)*
     """
     state["final_report"] = llm.invoke(report_prompt).content
     return state
