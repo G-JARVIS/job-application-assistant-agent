@@ -1,5 +1,5 @@
 # Job Application Assistant Agent
-
+deployed link -> job-application-assistant-agent.streamlit.app
 Run:
 ```bash
 pip install -r requirements.txt
