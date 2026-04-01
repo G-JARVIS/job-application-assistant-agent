@@ -87,7 +87,7 @@ def advisor_agent(state: AgentState) -> AgentState:
     
     Structure:
     ## 📊 Match Analysis: {score}
-    ## ðŸ¢ Company Insights
+    ## Company Insights
     ## 🛠️ Recommended Changes
     ## 🚀 Project Roadmap
     """
